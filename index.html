@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>COVID by County</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+              integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+              crossorigin=""/>
+        <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+                integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+                crossorigin=""></script>
+        <script src="./citysdk.js"></script>
+    </head>
+    <body>
+        <h1>COVID-19 Cases per capita</h1>
+        <label for="StatePicker">State: </label>
+        <select id="StatePicker">
+            <option></option>
+            <option value="01">Alabama</option>
+            <option value="02">Alaska</option>
+            <option value="04">Arizona</option>
+            <option value="05">Arkansas</option>
+            <option value="06">California</option>
+            <option value="08">Colorado</option>
+            <option value="09">Connecticut</option>
+            <option value="10">Delaware</option>
+            <option value="11">District Of Columbia</option>
+            <option value="12">Florida</option>
+            <option value="13">Georgia</option>
+            <option value="15">Hawaii</option>
+            <option value="16">Idaho</option>
+            <option value="17">Illinois</option>
+            <option value="18">Indiana</option>
+            <option value="19">Iowa</option>
+            <option value="20">Kansas</option>
+            <option value="21">Kentucky</option>
+            <option value="22">Louisiana</option>
+            <option value="23">Maine</option>
+            <option value="24">Maryland</option>
+            <option value="25">Massachusetts</option>
+            <option value="26">Michigan</option>
+            <option value="27">Minnesota</option>
+            <option value="28">Mississippi</option>
+            <option value="29">Missouri</option>
+            <option value="30">Montana</option>
+            <option value="31">Nebraska</option>
+            <option value="32">Nevada</option>
+            <option value="33">New Hampshire</option>
+            <option value="34">New Jersey</option>
+            <option value="35">New Mexico</option>
+            <option value="36">New York</option>
+            <option value="37">North Carolina</option>
+            <option value="38">North Dakota</option>
+            <option value="39">Ohio</option>
+            <option value="40">Oklahoma</option>
+            <option value="41">Oregon</option>
+            <option value="42">Pennsylvania</option>
+            <option value="44">Rhode Island</option>
+            <option value="45">South Carolina</option>
+            <option value="46">South Dakota</option>
+            <option value="47">Tennessee</option>
+            <option value="48">Texas</option>
+            <option value="49">Utah</option>
+            <option value="50">Vermont</option>
+            <option value="51">Virginia</option>
+            <option value="53">Washington</option>
+            <option value="54">West Virginia</option>
+            <option value="55">Wisconsin</option>
+            <option value="56">Wyoming</option>
+        </select>
+        <p>After picking a state, give it 10 seconds to get data and draw the map.</p>
+        <div id="Map" style="height: 700px"></div>
+        <script>
+            var map = L.map('Map').setView([39, -78], 7);
+            // L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+            //     maxZoom: 18,
+            //     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+            //         '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+            //         'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            //     id: 'mapbox/streets-v11',
+            //     tileSize: 512,
+            //     zoomOffset: -1
+            // }).addTo(map);
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                attribution:  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            function style(covid_data, feature) {
+                let fips = feature.properties.STATEFP + feature.properties.COUNTYFP;
+                // console.log("fips", fips);
+                let cases = null;
+                if (fips in covid_data)
+                    cases = covid_data[fips][0];
+                // console.log(feature);
+                let pop = feature.properties.S0102_C01_001E;
+                if (pop === "NAN: null")
+                    pop = null;
+                let no_data = {
+                    fillColor: "#AAAAAA",
+                    fillOpacity: 0.7,
+                    weight: 0.5,
+                    color: "rgba(255, 255, 255, 0.7)"
+                };
+                if (! cases) {
+                    console.log(fips + " no covid data, " + feature.properties.NAME);
+                    return no_data;
+                }
+                if (! pop) {
+                    console.log(fips + " no population data, " + covid_data[fips][2] + " / " + covid_data[fips][3]);
+                    return no_data;
+                }
+                var percent = (cases / pop) * 100;
+                console.log(`${fips} percent ${cases} / ${pop} is ${percent}`);
+                return {
+                    fillColor: getColor(percent),
+                    fillOpacity: 0.7,
+                    weight: 0.5,
+                    color: "rgba(255, 255, 255, 0.7)"
+                };
+            }
+
+            // https://cssgradient.io/
+            function getColor(percent) {
+                return percent > 0.32
+                    ? "#c90000"
+                    : percent > 0.16
+                        ? "#d12413"
+                        : percent > 0.08
+                            ? "#d74323"
+                            : percent > 0.04
+                                ? "#df6936"
+                                : percent > 0.02
+                                    ? "#e48245"
+                                    : percent > 0.01
+                                        ? "#f3c568"
+                                        : percent > 0.005
+                                            ? "#f5d06e"
+                                            : percent > 0.0025
+                                                ? "#f8de75"
+                                                : "#ffff87";
+            }
+
+            let getCensusData = (state) => {
+                return new Promise((resolve, reject) => {
+                    options = {
+                        vintage: 2017,
+                        geoHierarchy: { state: state, county: "*"},
+                        geoResolution: "5m",
+                        sourcePath: ["acs", "acs5", "subject"],
+                        // Total!!Estimate!!Total population : S0102_C01_001E
+                        // 60 years and over!!Estimate!!Total population : S0102_C02_001E
+                        values: ["S0102_C01_001E"]
+                    };
+                    function callback(error, response) {
+                        if (error)
+                            reject(error);
+                        resolve(response);
+                    }
+                    census(options, callback);
+                });
+            };
+
+            // TODO: Let's try to stream this.
+            let covid = fetch("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv")
+                .then(response => response.text())
+                .then((input) => {
+                    data = {};
+                    let header = true;
+                    input.split(/\n/).forEach((line) => {
+                        if (header) {
+                            header = false;
+                            return;
+                        }
+                        const [date, county, state, fips, cases, deaths] = line.split(/,/);
+                        // Input is sorted by date.  Later dates will overwrite prior dates and that's ok.
+                        data[fips] = [cases, deaths, state, county]
+                    });
+                    return data;
+                })
+                .catch(error => console.error(error));
+
+            let combine = function(covid_data) {
+                return function(feature) {
+                    return style(covid_data, feature);
+                }
+            };
+
+            document.querySelector('#StatePicker').addEventListener('change', event => {
+                // console.log(event);
+                if (! event.target.value)
+                    return;
+                let census_data = getCensusData(event.target.value);
+                Promise.all([covid, census_data]).then(function(values) {
+                    // console.log(values);
+                    let combined = combine(values[0]);
+                    L.geoJson(values[1], {style: combined}).addTo(map);
+                });
+            });
+    </script>
+    </body>
+</html>
