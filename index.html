@@ -12,11 +12,31 @@
                 crossorigin=""></script>
         <script src="./citysdk.js"></script>
         <style>
+            #Container {
+                position: relative;
+            }
             #Header {
                 display: grid;
                 /*grid-template-columns: 40% 60%;*/
                 grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
                 /*max-width: 960px;*/
+            }
+            #Legend {
+                line-height: 18px;
+                color: #555;
+                position: absolute;
+                bottom: 40px;
+                right: 20px;
+                z-index: 400;
+                background-color: white;
+                padding: 5px;
+            }
+            #Legend i {
+                width: 50px;
+                height: 18px;
+                float: left;
+                margin-right: 8px;
+                opacity: 0.7;
             }
         </style>
     </head>
@@ -82,7 +102,10 @@
                 <p>After picking a state, give it 10 seconds to get data and draw the map.  <a href="https://github.com/openbrian/covid-19-map-by-region">source code</a></p>
             </div>
         </div>
-        <div id="Map" style="height: 700px"></div>
+        <div id="Container">
+            <div id="Map" style="height: 700px"></div>
+            <div id="Legend"></div>
+        </div>
         <script>
             var map = L.map('Map').setView([39.5, -98.3], 5);
             // L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
@@ -134,21 +157,21 @@
 
             // https://cssgradient.io/
             function getColor(percent) {
-                return percent > 0.32
+                return percent >= 0.32
                     ? "#c90000"
-                    : percent > 0.16
+                    : percent >= 0.16
                         ? "#d12413"
-                        : percent > 0.08
+                        : percent >= 0.08
                             ? "#d74323"
-                            : percent > 0.04
+                            : percent >= 0.04
                                 ? "#df6936"
-                                : percent > 0.02
+                                : percent >= 0.02
                                     ? "#e48245"
-                                    : percent > 0.01
+                                    : percent >= 0.01
                                         ? "#f3c568"
-                                        : percent > 0.005
+                                        : percent >= 0.005
                                             ? "#f5d06e"
-                                            : percent > 0.0025
+                                            : percent >= 0.0025
                                                 ? "#f8de75"
                                                 : "#ffff87";
             }
@@ -199,7 +222,6 @@
             };
 
             document.querySelector('#StatePicker').addEventListener('change', event => {
-                // console.log(event);
                 if (! event.target.value)
                     return;
                 let census_data = getCensusData(event.target.value);
@@ -209,6 +231,15 @@
                     L.geoJson(values[1], {style: combined}).addTo(map);
                 });
             });
-    </script>
+
+            var grades = [0.32, 0.16, 0.08, 0.04, 0.02, 0.01, 0.005, 0.0025];  // TODO: Refactor
+            var legendDiv = document.getElementById("Legend");
+            grades.forEach(function(grade, i) {
+                const c = getColor(grades[i]);
+                const rhs = i === 0 ? `+ cases` : ` &ndash; ${grades[i - 1]}%`;
+                legendDiv.innerHTML += `<i style="background: ${c}"></i>${grades[i]}%${rhs}<br/>`;
+            });
+
+        </script>
     </body>
 </html>
