@@ -11,65 +11,77 @@
                 integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
                 crossorigin=""></script>
         <script src="./citysdk.js"></script>
+        <style>
+            #Header {
+                display: grid;
+                /*grid-template-columns: 40% 60%;*/
+                grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+                /*max-width: 960px;*/
+            }
+        </style>
     </head>
     <body>
-        <h1>COVID-19 Cases per capita</h1>
-        <label for="StatePicker">State: </label>
-        <select id="StatePicker">
-            <option></option>
-            <option value="01">Alabama</option>
-            <option value="02">Alaska</option>
-            <option value="04">Arizona</option>
-            <option value="05">Arkansas</option>
-            <option value="06">California</option>
-            <option value="08">Colorado</option>
-            <option value="09">Connecticut</option>
-            <option value="10">Delaware</option>
-            <option value="11">District Of Columbia</option>
-            <option value="12">Florida</option>
-            <option value="13">Georgia</option>
-            <option value="15">Hawaii</option>
-            <option value="16">Idaho</option>
-            <option value="17">Illinois</option>
-            <option value="18">Indiana</option>
-            <option value="19">Iowa</option>
-            <option value="20">Kansas</option>
-            <option value="21">Kentucky</option>
-            <option value="22">Louisiana</option>
-            <option value="23">Maine</option>
-            <option value="24">Maryland</option>
-            <option value="25">Massachusetts</option>
-            <option value="26">Michigan</option>
-            <option value="27">Minnesota</option>
-            <option value="28">Mississippi</option>
-            <option value="29">Missouri</option>
-            <option value="30">Montana</option>
-            <option value="31">Nebraska</option>
-            <option value="32">Nevada</option>
-            <option value="33">New Hampshire</option>
-            <option value="34">New Jersey</option>
-            <option value="35">New Mexico</option>
-            <option value="36">New York</option>
-            <option value="37">North Carolina</option>
-            <option value="38">North Dakota</option>
-            <option value="39">Ohio</option>
-            <option value="40">Oklahoma</option>
-            <option value="41">Oregon</option>
-            <option value="42">Pennsylvania</option>
-            <option value="44">Rhode Island</option>
-            <option value="45">South Carolina</option>
-            <option value="46">South Dakota</option>
-            <option value="47">Tennessee</option>
-            <option value="48">Texas</option>
-            <option value="49">Utah</option>
-            <option value="50">Vermont</option>
-            <option value="51">Virginia</option>
-            <option value="53">Washington</option>
-            <option value="54">West Virginia</option>
-            <option value="55">Wisconsin</option>
-            <option value="56">Wyoming</option>
-        </select>
-        <p>After picking a state, give it 10 seconds to get data and draw the map.  <a href="https://github.com/openbrian/covid-19-map-by-region">source code</a></p>
+        <div id="Header">
+            <h1>COVID-19 Cases per capita</h1>
+            <div>
+                <label for="StatePicker">State: </label>
+                <select id="StatePicker">
+                    <option></option>
+                    <option value="01">Alabama</option>
+                    <option value="02">Alaska</option>
+                    <option value="04">Arizona</option>
+                    <option value="05">Arkansas</option>
+                    <option value="06">California</option>
+                    <option value="08">Colorado</option>
+                    <option value="09">Connecticut</option>
+                    <option value="10">Delaware</option>
+                    <option value="11">District Of Columbia</option>
+                    <option value="12">Florida</option>
+                    <option value="13">Georgia</option>
+                    <option value="15">Hawaii</option>
+                    <option value="16">Idaho</option>
+                    <option value="17">Illinois</option>
+                    <option value="18">Indiana</option>
+                    <option value="19">Iowa</option>
+                    <option value="20">Kansas</option>
+                    <option value="21">Kentucky</option>
+                    <option value="22">Louisiana</option>
+                    <option value="23">Maine</option>
+                    <option value="24">Maryland</option>
+                    <option value="25">Massachusetts</option>
+                    <option value="26">Michigan</option>
+                    <option value="27">Minnesota</option>
+                    <option value="28">Mississippi</option>
+                    <option value="29">Missouri</option>
+                    <option value="30">Montana</option>
+                    <option value="31">Nebraska</option>
+                    <option value="32">Nevada</option>
+                    <option value="33">New Hampshire</option>
+                    <option value="34">New Jersey</option>
+                    <option value="35">New Mexico</option>
+                    <option value="36">New York</option>
+                    <option value="37">North Carolina</option>
+                    <option value="38">North Dakota</option>
+                    <option value="39">Ohio</option>
+                    <option value="40">Oklahoma</option>
+                    <option value="41">Oregon</option>
+                    <option value="42">Pennsylvania</option>
+                    <option value="44">Rhode Island</option>
+                    <option value="45">South Carolina</option>
+                    <option value="46">South Dakota</option>
+                    <option value="47">Tennessee</option>
+                    <option value="48">Texas</option>
+                    <option value="49">Utah</option>
+                    <option value="50">Vermont</option>
+                    <option value="51">Virginia</option>
+                    <option value="53">Washington</option>
+                    <option value="54">West Virginia</option>
+                    <option value="55">Wisconsin</option>
+                    <option value="56">Wyoming</option>
+                </select>
+                <p>After picking a state, give it 10 seconds to get data and draw the map.  <a href="https://github.com/openbrian/covid-19-map-by-region">source code</a></p>
+            </div>
+        </div>
         <div id="Map" style="height: 700px"></div>
         <script>
             var map = L.map('Map').setView([39, -78], 7);

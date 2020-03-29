@@ -31,6 +31,7 @@ Here's New York.  Some counties don't match up.  NYC is described differently be
 
 ### Helpers
 
+* https://medium.com/samsung-internet-dev/common-responsive-layouts-with-css-grid-and-some-without-245a862f48df - responsive css grid
 * https://www.freecodecamp.org/news/how-to-make-a-promise-out-of-a-callback-function-in-javascript-d8ec35d1f981/ - for turning a callback into a promise
 * https://leafletjs.com/examples/quick-start/ - a starter
 * https://leafletjs.com/examples/geojson/ - for style
