@@ -159,25 +159,25 @@
                 };
             }
 
+            const grades = [
+                [0.32, "#c90000"],
+                [0.16, "#d12413"],
+                [0.08, "#d74323"],
+                [0.04, "#df6936"],
+                [0.02, "#e48245"],
+                [0.01, "#f3c568"],
+                [0.005, "#f5d06e"],
+                [0.0025, "#f8de75"],
+                [0, "#ffff87"]
+            ];
+
             // https://cssgradient.io/
             function getColor(percent) {
-                return percent >= 0.32
-                    ? "#c90000"
-                    : percent >= 0.16
-                        ? "#d12413"
-                        : percent >= 0.08
-                            ? "#d74323"
-                            : percent >= 0.04
-                                ? "#df6936"
-                                : percent >= 0.02
-                                    ? "#e48245"
-                                    : percent >= 0.01
-                                        ? "#f3c568"
-                                        : percent >= 0.005
-                                            ? "#f5d06e"
-                                            : percent >= 0.0025
-                                                ? "#f8de75"
-                                                : "#ffff87";
+                for (let i = 0; i < grades.length; i++) {
+                    if (percent >= grades[i][0]) {
+                        return grades[i][1];
+                    }
+                }
             }
 
             let getCensusData = (state) => {
@@ -236,14 +236,11 @@
                 });
             });
 
-            var grades = [0.32, 0.16, 0.08, 0.04, 0.02, 0.01, 0.005, 0.0025];  // TODO: Refactor
             var legendDiv = document.getElementById("Legend");
-            grades.forEach(function(grade, i) {
-                const c = getColor(grades[i]);
-                const rhs = i === 0 ? `+ cases` : ` &ndash; ${grades[i - 1]}%`;
-                legendDiv.innerHTML += `<i style="background: ${c}"></i>${grades[i]}%${rhs}<br/>`;
+            grades.forEach((grade, i) => {
+                const rhs = i === 0 ? `+ cases` : ` &ndash; ${grades[i - 1][0]}%`;
+                legendDiv.innerHTML += `<i style="background: ${grade[1]}"></i>${grade[0]}%${rhs}<br/>`;
             });
-
         </script>
     </body>
 </html>
