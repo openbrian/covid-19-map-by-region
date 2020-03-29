@@ -17,9 +17,7 @@
             }
             #Header {
                 display: grid;
-                /*grid-template-columns: 40% 60%;*/
                 grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-                /*max-width: 960px;*/
             }
             #Legend {
                 line-height: 18px;
@@ -37,6 +35,9 @@
                 float: left;
                 margin-right: 8px;
                 opacity: 0.7;
+            }
+            #Map {
+                height: 600px;
             }
         </style>
     </head>
@@ -103,7 +104,7 @@
             </div>
         </div>
         <div id="Container">
-            <div id="Map" style="height: 700px"></div>
+            <div id="Map"></div>
             <div id="Legend"></div>
         </div>
         <script>
