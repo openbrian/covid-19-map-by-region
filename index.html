@@ -125,7 +125,16 @@
                 attribution:  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
 
-            function style(covid_data, feature) {
+            const nytExceptions = {
+                "36005": ["New York", "New York City"],  // Bronx
+                "36081": ["New York", "New York City"],  // Queens
+                "36047": ["New York", "New York City"],  // Kings
+                "36061": ["New York", "New York City"],  // New York
+                "36085": ["New York", "New York City"],  // Richmond
+            };
+
+            function style(all_covid_data, feature) {
+                const [covid_data, covid_data_no_fips] = all_covid_data;
                 let fips = feature.properties.STATEFP + feature.properties.COUNTYFP;
                 // console.log("fips", fips);
                 let cases = null;
@@ -143,14 +152,31 @@
                 };
                 if (! cases) {
                     console.log(fips + " no covid data, " + feature.properties.NAME);
-                    return no_data;
+                    // Try the exceptions.
+                    if (fips in nytExceptions) {
+                        console.log('   Found an exception');
+                        const [state, city] = nytExceptions[fips];
+                        if (state in covid_data_no_fips) {
+                            if (city in covid_data_no_fips[state]) {
+                                cases = covid_data_no_fips[state][city][0];
+                            }
+                        }
+                    } else {
+                        console.log('   Did not find an exception');
+                        // If there's no covid_data, assume it's zero cases.
+                        cases = 0;
+                    }
                 }
                 if (! pop) {
-                    console.log(fips + " no population data, " + covid_data[fips][2] + " / " + covid_data[fips][3]);
+                    if (!(fips in covid_data)){
+                        console.log(fips + " no census data, and fips not in covid_data");
+                        return no_data;
+                    }
+                    console.log(fips + " no census data, " + covid_data[fips][2] + " / " + covid_data[fips][3]);
                     return no_data;
                 }
-                var percent = (cases / pop) * 100;
-                console.log(`${fips} percent ${cases} / ${pop} is ${percent}`);
+                const percent = (cases / pop) * 100;
+                // console.log(`${fips} percent ${cases} / ${pop} is ${percent}`);
                 return {
                     fillColor: getColor(percent),
                     fillOpacity: 0.7,
@@ -204,7 +230,9 @@
             let covid = fetch("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv")
                 .then(response => response.text())
                 .then((input) => {
-                    data = {};
+                    let lastDate = null;
+                    let data = {};
+                    let dataNoFips = {};
                     let header = true;
                     input.split(/\n/).forEach((line) => {
                         if (header) {
@@ -213,9 +241,25 @@
                         }
                         const [date, county, state, fips, cases, deaths] = line.split(/,/);
                         // Input is sorted by date.  Later dates will overwrite prior dates and that's ok.
-                        data[fips] = [cases, deaths, state, county]
+                        // In some cases, we don't know what county the cases are in.  They are assigned
+                        // to the Unknown county.  But on a later day, they may become assigned, so clear
+                        // out dataNoFips.
+                        if (date !== lastDate) {
+                            dataNoFips = {};
+                            lastDate = date;
+                        }
+                        if (fips)
+                            data[fips] = [cases, deaths, state, county];
+                        else {
+                            // console.log(`No fips for ${county}, ${state}.`)
+                            if (! (state in dataNoFips))
+                                dataNoFips[state] = {};
+                            if (! (county in dataNoFips[state]))
+                                dataNoFips[state][county] = [cases, deaths];
+                        }
                     });
-                    return data;
+                    console.log(dataNoFips);
+                    return [data, dataNoFips];
                 })
                 .catch(error => console.error(error));
 
@@ -230,7 +274,6 @@
                     return;
                 let census_data = getCensusData(event.target.value);
                 Promise.all([covid, census_data]).then(function(values) {
-                    // console.log(values);
                     let combined = combine(values[0]);
                     L.geoJson(values[1], {style: combined}).addTo(map);
                 });
