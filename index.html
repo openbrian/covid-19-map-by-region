@@ -141,7 +141,7 @@
                 if (fips in covid_data)
                     cases = covid_data[fips][0];
                 // console.log(feature);
-                let pop = feature.properties.S0102_C01_001E;
+                let pop = feature.properties.B00001_001E;
                 if (pop === "NAN: null")
                     pop = null;
                 let no_data = {
@@ -212,10 +212,8 @@
                         vintage: 2017,
                         geoHierarchy: { state: state, county: "*"},
                         geoResolution: "5m",
-                        sourcePath: ["acs", "acs5", "subject"],
-                        // Total!!Estimate!!Total population : S0102_C01_001E
-                        // 60 years and over!!Estimate!!Total population : S0102_C02_001E
-                        values: ["S0102_C01_001E"]
+                        sourcePath: ["acs", "acs5"],
+                        values: ["B00001_001E"]
                     };
                     function callback(error, response) {
                         if (error)
