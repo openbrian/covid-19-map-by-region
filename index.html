@@ -133,7 +133,7 @@
                 "36085": ["New York", "New York City"],  // Richmond
             };
 
-            function style(all_covid_data, feature) {
+            function style_county(all_covid_data, feature) {
                 const [covid_data, covid_data_no_fips] = all_covid_data;
                 let fips = feature.properties.STATEFP + feature.properties.COUNTYFP;
                 // console.log("fips", fips);
@@ -280,8 +280,8 @@
                     return;
                 let census_data = getCensusData(event.target.value);
                 Promise.all([covid, census_data]).then(function(values) {
-                    let combined = combine(values[0], style);
-                    L.geoJson(values[1], {style: combined}).addTo(map);
+                    let style = combine(values[0], style_county);
+                    L.geoJson(values[1], {style: style}).addTo(map);
                 });
             });
 
