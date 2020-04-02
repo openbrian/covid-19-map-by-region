@@ -269,9 +269,9 @@
                 })
                 .catch(error => console.error(error));
 
-            let combine = function(covid_data) {
+            let combine = function(covid_data, renderer) {
                 return function(feature) {
-                    return style(covid_data, feature);
+                    return renderer(covid_data, feature);
                 }
             };
 
@@ -280,7 +280,7 @@
                     return;
                 let census_data = getCensusData(event.target.value);
                 Promise.all([covid, census_data]).then(function(values) {
-                    let combined = combine(values[0]);
+                    let combined = combine(values[0], style);
                     L.geoJson(values[1], {style: combined}).addTo(map);
                 });
             });
