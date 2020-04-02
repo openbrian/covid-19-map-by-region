@@ -214,15 +214,8 @@
                 }
             }
 
-            let getCensusData = (state) => {
+            let getCensusData = (options) => {
                 return new Promise((resolve, reject) => {
-                    options = {
-                        vintage: 2017,
-                        geoHierarchy: { state: state, county: "*"},
-                        geoResolution: "5m",
-                        sourcePath: ["acs", "acs5"],
-                        values: ["B00001_001E"]
-                    };
                     function callback(error, response) {
                         if (error)
                             reject(error);
@@ -278,7 +271,15 @@
             document.querySelector('#StatePicker').addEventListener('change', event => {
                 if (! event.target.value)
                     return;
-                let census_data = getCensusData(event.target.value);
+                // Counties
+                const options = {
+                    vintage: 2017,
+                    geoHierarchy: { state: event.target.value, county: "*"},
+                    geoResolution: "5m",
+                    sourcePath: ["acs", "acs5"],
+                    values: ["B00001_001E"]
+                };
+                let census_data = getCensusData(options);
                 Promise.all([covid, census_data]).then(function(values) {
                     let style = combine(values[0], style_county);
                     L.geoJson(values[1], {style: style}).addTo(map);
